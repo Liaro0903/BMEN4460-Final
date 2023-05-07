@@ -182,8 +182,8 @@ class TrainLoop:
                     # reinitialize data loader
                     data_iter = iter(self.dataloader)
                     batch, cond, name = next(data_iter)
-            print(batch.shape)
-            print(cond.shape)
+            #print(batch.shape)
+            #print(cond.shape)
             self.run_step(batch, cond)
             
 

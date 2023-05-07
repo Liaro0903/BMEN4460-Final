@@ -143,7 +143,8 @@ class ISICDataset(Dataset):
         # HWC to CHW
         #img = np.transpose(img, (2, 0, 1))
         
-
+        print(img.shape)
+        print(mask.shape)
         return (torch.from_numpy(img).type(torch.FloatTensor),
           torch.from_numpy(mask).type(torch.FloatTensor),
           imgid)
