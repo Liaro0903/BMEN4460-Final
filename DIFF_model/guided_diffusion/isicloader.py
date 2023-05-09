@@ -18,17 +18,18 @@ import nibabel as nib
 data_root_folder = '../data/'
 class ISICDataset(Dataset):
     def __init__(self, folder, mode ='train'):
+    #def __init__(self, args, data_path , transform = None, mode = 'Training',plane = False):
+        '''
+        df = pd.read_csv(os.path.join(data_path, 'ISBI2016_ISIC_Part3B_' + mode + '_GroundTruth.csv'), encoding='gbk')
+        print(df.iloc[:,1])
+        print(df.iloc[:,2])
+        self.name_list = df.iloc[:,1].tolist()
+        self.label_list = df.iloc[:,2].tolist()
+        self.data_path = data_path
+        self.mode = mode
 
-
-        #df = pd.read_csv(os.path.join(data_path, 'ISBI2016_ISIC_Part3B_' + mode + '_GroundTruth.csv'), encoding='gbk')
-
-        #self.name_list = df.iloc[:,1].tolist()
-        #self.label_list = df.iloc[:,2].tolist()
-        #self.data_path = data_path
-        #self.mode = mode
-
-        #self.transform = transform
-
+        self.transform = transform
+        '''
         if (mode == 'train'):
             imgs_dir = os.path.join(data_root_folder, folder, 'Fold_2')
             img_dirs = sorted(glob.glob(os.path.join(imgs_dir, '*.gz')))
@@ -62,31 +63,39 @@ class ISICDataset(Dataset):
             
         self.ids = list(self.img_dirs_dic.keys())
         self.n_sample = len(self.img_dirs_dic.keys())
+        
 
     def __len__(self):
+        #return len(self.name_list)
         return self.n_sample
 
     def __getitem__(self, index):
         """Get the images"""
-        #name = self.name_list[index]
-        #img_path = os.path.join(self.data_path, name)
+        '''
+        name = self.name_list[index]
+        img_path = os.path.join(self.data_path,name)
         
-        #mask_name = self.label_list[index]
-        #msk_path = os.path.join(self.data_path, mask_name)
+        mask_name = self.label_list[index]
+        msk_path = os.path.join(self.data_path,mask_name)
 
-        #img = Image.open(img_path).convert('RGB')
-        #mask = Image.open(msk_path).convert('L')
+        img = Image.open(img_path).convert('RGB')
+        mask = Image.open(msk_path).convert('L')
 
-        # if self.mode == 'Training':
+        #if self.mode == 'Training':
         #     label = 0 if self.label_list[index] == 'benign' else 1
-        # else:
+        #else:
         #     label = int(self.label_list[index])
 
-        #if self.transform:
-        #    state = torch.get_rng_state()
-        #    img = self.transform(img)
-        #    torch.set_rng_state(state)
-        #    mask = self.transform(mask)
+        if self.transform:
+            state = torch.get_rng_state()
+            img = self.transform(img)
+            torch.set_rng_state(state)
+            mask = self.transform(mask)
+
+        print(img.shape) 
+        print(mask.shape)   
+        return (img, mask, name)
+        '''        
         imgid = self.ids[index]
         
         # Read the actual image
@@ -136,17 +145,17 @@ class ISICDataset(Dataset):
         
         # Add an axis to the mask array so that it is in [channel, width, height] format.
         #mask = np.expand_dims(mask, axis=0)
-        img = img
-        mask = mask0
+        img1 = torch.from_numpy(img[:,:,90]).type(torch.FloatTensor)
+        img1 = img1.repeat(3,1,1)
+        mask = torch.from_numpy(mask0[:,:,90]).type(torch.FloatTensor)
+        mask = torch.reshape(mask,(1,192,192))
         #mask = np.stack((mask0, mask1, mask2), axis=0)
         
         # HWC to CHW
         #img = np.transpose(img, (2, 0, 1))
         
-        print(img.shape)
-        print(mask.shape)
-        return (torch.from_numpy(img).type(torch.FloatTensor),
-          torch.from_numpy(mask).type(torch.FloatTensor),
+        return (img1,
+          mask,
           imgid)
-  
-        #return (img, mask, name)
+        
+        

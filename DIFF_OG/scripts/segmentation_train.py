@@ -30,15 +30,15 @@ def main():
     if args.data_name == 'ISIC':
         tran_list = [transforms.Resize((args.image_size,args.image_size)), transforms.ToTensor(),]
         transform_train = transforms.Compose(tran_list)
-        #ds = ISICDataset(args, args.data_dir, transform_train)
-        ds = ISICDataset('dlbs', 'train')
+
+        ds = ISICDataset(args, args.data_dir, transform_train)
         args.in_ch = 4
-    #elif args.data_name == 'BRATS':
-    #    tran_list = [transforms.Resize((args.image_size,args.image_size)),]
-    #    transform_train = transforms.Compose(tran_list)
-#
-    #    ds = BRATSDataset3D(args.data_dir, transform_train, test_flag=False)
-    #    args.in_ch = 5
+    elif args.data_name == 'BRATS':
+        tran_list = [transforms.Resize((args.image_size,args.image_size)),]
+        transform_train = transforms.Compose(tran_list)
+
+        ds = BRATSDataset3D(args.data_dir, transform_train, test_flag=False)
+        args.in_ch = 5
     datal= th.utils.data.DataLoader(
         ds,
         batch_size=args.batch_size,
