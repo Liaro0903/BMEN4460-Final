@@ -3,7 +3,11 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 from Models.Transformer import TransformerModel
+# from Transformer import TransformerModel
+# from BMEN4460_Final.TABS_model.Models.Transformer import TransformerModel
 from Models.PositionalEncoding import LearnedPositionalEncoding
+# from PositionalEncoding import LearnedPositionalEncoding
+# from BMEN4460_Final.TABS_model.Models.PositionalEncoding import LearnedPositionalEncoding
 
 class up_conv_3D(nn.Module):
     def __init__(self, ch_in, ch_out):

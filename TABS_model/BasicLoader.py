@@ -16,7 +16,10 @@ from torch.utils.data import TensorDataset, DataLoader
 
 import nibabel as nib
 
-data_root_folder = '../../data/TABSdataset/'
+from torchvision import transforms
+
+data_root_folder = '../../../data/TABSdataset/'
+# data_root_folder = '../data/TABSdataset/'
 class BasicDataset(TensorDataset):
     # This function takes folder name ('train', 'valid', 'test') as input and creates an instance of BasicDataset according to that fodler.
     # Also if you'dd like to have less number of samples (for evaluation purposes), you may set the `n_sample` with an integer.
@@ -52,8 +55,10 @@ class BasicDataset(TensorDataset):
 
         for imgid in self.img_dirs_dic:
             assert len(self.img_dirs_dic[imgid]) == 4, 'There are some missing images or masks in {0}'.format(folder)
-            
-        self.ids = list(self.img_dirs_dic.keys())
+        
+        # print(self.img_dirs_dic) 
+        self.ids = sorted(list(self.img_dirs_dic.keys()))
+        # print(self.ids)
         self.n_sample = len(self.img_dirs_dic.keys())
         
         # If n_sample is not None (It has been set by the user)
@@ -72,6 +77,11 @@ class BasicDataset(TensorDataset):
     # mask (Binary), and the index of the file name (Which we will use for visualization). The preprocessing step is also implemented in this function.
     def __getitem__(self, i):
         imgid = self.ids[i]
+        # print(imgid)
+        # print(self.img_dirs_dic[imgid][0])
+        # print(self.img_dirs_dic[imgid][1])
+        # print(self.img_dirs_dic[imgid][2])
+        # print(self.img_dirs_dic[imgid][3])
         
         # Read the actual image
         img = nib.load(self.img_dirs_dic[imgid][0]).get_fdata()
@@ -93,22 +103,11 @@ class BasicDataset(TensorDataset):
         mask2 = np.append(mask2, np.zeros((10, 192, 182)), axis=0)
         mask2 = np.append(mask2, np.zeros((192, 192, 10)), axis=2)
         
-        # img = cv2.imread(os.path.join(self.imgs_dir, 'image_{0:04d}.png'.format(idx)), cv2.IMREAD_COLOR)
-        # mask = cv2.imread(os.path.join(self.masks_dir, 'mask_{0:04d}.png'.format(idx)), cv2.IMREAD_GRAYSCALE)
-
-        # Convert BGR to RGB
-        # img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-
-        #Resize all images from 512 to 256 (H and W) ################################### Important Note: Remove the following lines to go back to the original resolution (512x512)
-        #img = cv2.resize(img, (192,192))
-        #print(img.shape)
-        #mask = cv2.resize(mask, (192,192))
-        
         # Scale between 0 to 1
-        img = np.array(img) / 255.0
-        mask0 = np.array(mask0) / 255.0
-        mask1 = np.array(mask1) / 255.0
-        mask2 = np.array(mask2) / 255.0
+        # img = np.array(img) / 255.0
+        # mask0 = np.array(mask0) / 255.0
+        # mask1 = np.array(mask1) / 255.0
+        # mask2 = np.array(mask2) / 255.0
         
         # Make sure that the mask are binary (0 or 1)
         mask0[mask0 <= 0.5] = 0.0
@@ -123,12 +122,17 @@ class BasicDataset(TensorDataset):
         img = img[np.newaxis,:]
         mask = np.stack((mask0, mask1, mask2), axis=0)
         
-        # HWC to CHW
-        #img = np.transpose(img, (2, 0, 1))
-        
+        transform = transforms.Compose([
+            transforms.RandomVerticalFlip(p=0.2),
+            transforms.RandomHorizontalFlip(p=0.05),
+            # transforms.ColorJitter(brightness=0.2, contrast=0.2, saturation=0.2, hue=0.1),
+            transforms.RandomRotation(degrees=15),
+            # transforms.ToTensor()
+        ])
 
         return {
-          'image': torch.from_numpy(img).type(torch.FloatTensor),
+          'image': transform(torch.from_numpy(img).type(torch.FloatTensor)),
+        #   'image': torch.from_numpy(img).type(torch.FloatTensor),
           'mask': torch.from_numpy(mask).type(torch.FloatTensor),
           'img_id': imgid
         }

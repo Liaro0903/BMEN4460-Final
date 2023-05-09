@@ -17,6 +17,7 @@ from tqdm import tqdm
 
 from Models.TABS_Model import TABS
 from BasicLoader import BasicDataset
+from WHLoader import WHDataset, process_data
 
 local_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
 
@@ -25,7 +26,8 @@ parser.add_argument('--date', default=local_time.split(' ')[0], type=str)
 # Root directory
 parser.add_argument('--root', default='', type=str)
 # learning rate
-parser.add_argument('--lr', default=0.00001, type=float)
+# parser.add_argument('--lr', default=0.00001, type=float)
+parser.add_argument('--lr', default=0.00005, type=float)
 parser.add_argument('--weight_decay', default=1e-5, type=float)
 parser.add_argument('--amsgrad', default=True, type=bool)
 parser.add_argument('--seed', default=1000, type=int)
@@ -50,6 +52,14 @@ def main_worker():
 
     model = TABS()
 
+    # load_dir = './Results/Run_3/TABS_model_epoch_179_val_loss_0.10390213280916213.pth'
+    # # load_dir = './Results/Run_4/TABS_model_epoch_99_val_loss_0.09232506881418981.pth'
+    # # load_dir = './Results/Run_5/TABS_model_epoch_99_val_loss_0.09170322855444331.pth'
+    # checkpoint = torch.load(load_dir)
+    # print(checkpoint.keys())
+    # print(checkpoint['epoch'])
+    # model.load_state_dict(checkpoint['state_dict'])
+
     model.cuda()
     # model.cuda(args.gpu)
 
@@ -64,12 +74,18 @@ def main_worker():
 
     # *************************************************************************
     # Place train and validation datasets/dataloaders here
+
     train_dataset = BasicDataset('dlbs', 'train')
     valid_dataset = BasicDataset('dlbs', 'valid')
     test_dataset = BasicDataset('dlbs', 'test')
 
-    # train_dataloader = DataLoader(train_dataset, batch_size=2, shuffle=True, num_workers=1, pin_memory=True)
-    train_dataloader = DataLoader(train_dataset, batch_size=2, shuffle=True, num_workers=1)
+    # files_train, files_valid, files_test = process_data()
+    # files_train, files_valid, files_test = process_data('WH_split')
+    # train_dataset = WHDataset(files_train)
+    # valid_dataset = WHDataset(files_valid)
+    # test_dataset = WHDataset(files_test)
+
+    train_dataloader = DataLoader(train_dataset, batch_size=3, shuffle=True, num_workers=3, pin_memory=True)
     valid_dataloader = DataLoader(valid_dataset, batch_size=2, num_workers=2, pin_memory=True)
     test_dataloader = DataLoader(test_dataset, batch_size=2, num_workers=2, pin_memory=True)
     # return
@@ -101,7 +117,8 @@ def main_worker():
 
         # Loop through train dataloader here.
         # for i in range(0,1):
-        for i, batch in tqdm(enumerate(train_dataloader)):
+        loop = tqdm(train_dataloader)
+        for i, batch in enumerate(loop):
 
             adjust_learning_rate(optimizer, epoch, args.end_epoch, args.lr)
 
@@ -128,7 +145,9 @@ def main_worker():
         with torch.no_grad():
 
             # Loop through validation dataloader here.
-            for i, batch in tqdm(enumerate(valid_dataloader)):
+            loop = tqdm(valid_dataloader)
+            for i, batch in enumerate(loop):
+            # for i, batch in enumerate(valid_dataloader):
 
                 # Sample data for the purpose of demonstration
                 # mri_images = torch.randn(3,1,192,192,192)
@@ -142,6 +161,11 @@ def main_worker():
                 loss, isolated_images, stacked_brain_map  = get_loss(model, criterion, mri_images, targets, 'val')
 
                 val_epoch_losses.append(loss.item())
+
+                # print('loss:', loss)
+                # print('isolated_images_shape:', isolated_images.shape)
+                # print('stacked_brain_map:', stacked_brain_map.shape)
+                # print('targets:', targets.shape)
 
                 for j in range(0,len(isolated_images)):
                     cur_pcorr = overall_metrics(isolated_images[j], targets[j], stacked_brain_map[j])

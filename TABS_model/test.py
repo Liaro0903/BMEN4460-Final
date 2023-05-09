@@ -1,19 +1,22 @@
 import argparse
-import numpy as np
+import os
+import random
 
 import torch
 import torch.distributed as dist
 import torch.nn as nn
-import random
+from torch.utils.data import DataLoader
+
 from medpy.metric.binary import hd
 import nibabel as nib
-import os
-
-from torch.utils.data import DataLoader
+import numpy as np
 from scipy.stats import spearmanr
 from sklearn.metrics import jaccard_score
+from tqdm import tqdm
 
 from Models.TABS_Model import TABS
+from BasicLoader import BasicDataset
+from WHLoader import WHDataset, process_data
 
 parser = argparse.ArgumentParser()
 
@@ -163,12 +166,30 @@ if __name__ == '__main__':
 
     model = TABS()
 
-    checkpoint = torch.load(args.load_dir, map_location=torch.device(args.gpu))
+    # load_dir = './Results/Run_3/TABS_model_epoch_179_val_loss_0.10390213280916213.pth'
+    # load_dir = './Results/Run_4/TABS_model_epoch_99_val_loss_0.09232506881418981.pth'
+    # load_dir = './Results/Run_5/TABS_model_epoch_99_val_loss_0.09170322855444331.pth'
+    load_dir = './Results/Run_7/TABS_model_epoch_345_val_loss_0.10020019588145343.pth'
+    # checkpoint = torch.load(args.load_dir, map_location=torch.device(args.gpu))
+    checkpoint = torch.load(load_dir)
+    print(checkpoint.keys())
+    print(checkpoint['epoch'])
     model.load_state_dict(checkpoint['state_dict'])
-    model.cuda(args.gpu)
+    # model.cuda(args.gpu)
+    model.cuda()
 
     # *************************************************************************
     # Place train and validation datasets/dataloaders here
+
+    test_dataset = BasicDataset('dlbs', 'test')
+
+    # files_train, files_valid, files_test = process_data()
+    # files_train, files_valid, files_test = process_data('WH_split')
+
+    # test_dataset = WHDataset(files_test)
+
+    test_dataloader = DataLoader(test_dataset, batch_size=3, num_workers=3, pin_memory=True)
+
     # *************************************************************************
 
     criterion = nn.MSELoss(reduction='sum')
@@ -187,14 +208,19 @@ if __name__ == '__main__':
         val_corr = []
 
         # Loop through test dataloader here.
-        for i  in range(0,1):
+        # for i  in range(0,1):
+        loop = tqdm(test_dataloader)
+        for i, batch in enumerate(loop):
 
             # Sample data for the purpose of demonstration
-            mri_images = torch.randn(3,1,192,192,192)
-            targets = torch.randn(3,3,192,192,192)
+            # mri_images = torch.randn(3,1,192,192,192)
+            # targets = torch.randn(3,3,192,192,192)
 
-            mri_images = mri_images.cuda(args.gpu, non_blocking=True)
-            targets = targets.cuda(args.gpu, non_blocking=True)
+            # mri_images = mri_images.cuda(args.gpu, non_blocking=True)
+            # targets = targets.cuda(args.gpu, non_blocking=True)
+
+            mri_images = batch['image'].cuda()
+            targets = batch['mask'].cuda()
 
             loss, isolated_images, stacked_brain_maps  = get_loss(model, criterion, mri_images, targets, 'val')
 
