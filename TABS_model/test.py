@@ -166,10 +166,13 @@ if __name__ == '__main__':
 
     model = TABS()
 
+    # load_dir = './Results/Run_2/TABS_model_epoch_157_val_loss_0.14133297602335612.pth'
     # load_dir = './Results/Run_3/TABS_model_epoch_179_val_loss_0.10390213280916213.pth'
     # load_dir = './Results/Run_4/TABS_model_epoch_99_val_loss_0.09232506881418981.pth'
     # load_dir = './Results/Run_5/TABS_model_epoch_99_val_loss_0.09170322855444331.pth'
-    load_dir = './Results/Run_7/TABS_model_epoch_345_val_loss_0.10020019588145343.pth'
+    # load_dir = './Results/Run_7/TABS_model_epoch_345_val_loss_0.10020019588145343.pth'
+    # load_dir = './Results/Run_8/TABS_model_epoch_99_val_loss_0.050924392586404625.pth'
+    load_dir = './Results/Run_9/TABS_model_epoch_44_val_loss_0.0958379735337927.pth'
     # checkpoint = torch.load(args.load_dir, map_location=torch.device(args.gpu))
     checkpoint = torch.load(load_dir)
     print(checkpoint.keys())
@@ -181,12 +184,12 @@ if __name__ == '__main__':
     # *************************************************************************
     # Place train and validation datasets/dataloaders here
 
-    test_dataset = BasicDataset('dlbs', 'test')
+    # test_dataset = BasicDataset('dlbs', 'test')
 
     # files_train, files_valid, files_test = process_data()
-    # files_train, files_valid, files_test = process_data('WH_split')
+    files_train, files_valid, files_test = process_data('WH_split')
 
-    # test_dataset = WHDataset(files_test)
+    test_dataset = WHDataset(files_test)
 
     test_dataloader = DataLoader(test_dataset, batch_size=3, num_workers=3, pin_memory=True)
 

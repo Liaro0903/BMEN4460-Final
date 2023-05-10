@@ -105,6 +105,7 @@ class BasicDataset(TensorDataset):
         
         # Scale between 0 to 1
         # img = np.array(img) / 255.0
+        img = np.array(img) / 255.0 * 2.0 - 1.0
         # mask0 = np.array(mask0) / 255.0
         # mask1 = np.array(mask1) / 255.0
         # mask2 = np.array(mask2) / 255.0
@@ -122,17 +123,17 @@ class BasicDataset(TensorDataset):
         img = img[np.newaxis,:]
         mask = np.stack((mask0, mask1, mask2), axis=0)
         
-        transform = transforms.Compose([
-            transforms.RandomVerticalFlip(p=0.2),
-            transforms.RandomHorizontalFlip(p=0.05),
-            # transforms.ColorJitter(brightness=0.2, contrast=0.2, saturation=0.2, hue=0.1),
-            transforms.RandomRotation(degrees=15),
-            # transforms.ToTensor()
-        ])
+        # transform = transforms.Compose([
+        #     transforms.RandomVerticalFlip(p=0.2),
+        #     transforms.RandomHorizontalFlip(p=0.05),
+        #     # transforms.ColorJitter(brightness=0.2, contrast=0.2, saturation=0.2, hue=0.1),
+        #     transforms.RandomRotation(degrees=15),
+        #     # transforms.ToTensor()
+        # ])
 
         return {
-          'image': transform(torch.from_numpy(img).type(torch.FloatTensor)),
-        #   'image': torch.from_numpy(img).type(torch.FloatTensor),
+        #   'image': transform(torch.from_numpy(img).type(torch.FloatTensor)),
+          'image': torch.from_numpy(img).type(torch.FloatTensor),
           'mask': torch.from_numpy(mask).type(torch.FloatTensor),
           'img_id': imgid
         }

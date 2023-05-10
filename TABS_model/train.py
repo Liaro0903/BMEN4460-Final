@@ -27,8 +27,8 @@ parser.add_argument('--date', default=local_time.split(' ')[0], type=str)
 parser.add_argument('--root', default='', type=str)
 # learning rate
 # parser.add_argument('--lr', default=0.00001, type=float)
-parser.add_argument('--lr', default=0.00005, type=float)
-parser.add_argument('--weight_decay', default=1e-5, type=float)
+parser.add_argument('--lr', default=0.00001, type=float)
+parser.add_argument('--weight_decay', default=1e-6, type=float)
 parser.add_argument('--amsgrad', default=True, type=bool)
 parser.add_argument('--seed', default=1000, type=int)
 parser.add_argument('--no_cuda', default=False, type=bool)
@@ -75,19 +75,19 @@ def main_worker():
     # *************************************************************************
     # Place train and validation datasets/dataloaders here
 
-    train_dataset = BasicDataset('dlbs', 'train')
-    valid_dataset = BasicDataset('dlbs', 'valid')
-    test_dataset = BasicDataset('dlbs', 'test')
+    # train_dataset = BasicDataset('dlbs', 'train')
+    # valid_dataset = BasicDataset('dlbs', 'valid')
+    # test_dataset = BasicDataset('dlbs', 'test')
 
     # files_train, files_valid, files_test = process_data()
-    # files_train, files_valid, files_test = process_data('WH_split')
-    # train_dataset = WHDataset(files_train)
-    # valid_dataset = WHDataset(files_valid)
+    files_train, files_valid, files_test = process_data('WH_split')
+    train_dataset = WHDataset(files_train)
+    valid_dataset = WHDataset(files_valid)
     # test_dataset = WHDataset(files_test)
 
     train_dataloader = DataLoader(train_dataset, batch_size=3, shuffle=True, num_workers=3, pin_memory=True)
     valid_dataloader = DataLoader(valid_dataset, batch_size=2, num_workers=2, pin_memory=True)
-    test_dataloader = DataLoader(test_dataset, batch_size=2, num_workers=2, pin_memory=True)
+    # test_dataloader = DataLoader(test_dataset, batch_size=2, num_workers=2, pin_memory=True)
     # return
     # *************************************************************************
 
@@ -192,7 +192,7 @@ def main_worker():
             best_epoch = epoch
             file_name = os.path.join(checkpoint_dir, 'TABS_model_epoch_{}_val_loss_{}.pth'.format(epoch, val_global_losses[-1]))
             # Only save model at higher epochs
-            if epoch > 150:
+            if epoch > 10:
                 torch.save({
                     'epoch': epoch,
                     'state_dict': model.state_dict(),

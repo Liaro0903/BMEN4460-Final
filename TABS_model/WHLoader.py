@@ -72,6 +72,7 @@ class WHDataset(TensorDataset):
         
         # Scale between 0 to 1
         # img = np.array(img) / 255.0
+        # img = np.array(img) / 255.0 * 2.0 - 1.0
         # mask0 = np.array(mask0) / 255.0
         # mask1 = np.array(mask1) / 255.0
         # mask2 = np.array(mask2) / 255.0
