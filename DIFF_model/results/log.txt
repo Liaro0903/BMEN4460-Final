@@ -1,0 +1,32 @@
+Logging to ./results/
+creating data loader...
+creating model and diffusion...
+training...
+---------------------------
+| grad_norm    | 6.99     |
+| loss         | 1.03     |
+| loss_cal     | 0.179    |
+| loss_cal_q0  | 0.128    |
+| loss_cal_q1  | 0.163    |
+| loss_cal_q2  | 0.19     |
+| loss_cal_q3  | 0.191    |
+| loss_diff    | 1        |
+| loss_diff_q0 | 0.992    |
+| loss_diff_q1 | 0.995    |
+| loss_diff_q2 | 0.995    |
+| loss_diff_q3 | 1.01     |
+| loss_q0      | 1.13     |
+| loss_q1      | 1        |
+| loss_q2      | 1        |
+| loss_q3      | 1.02     |
+| param_norm   | 206      |
+| samples      | 8        |
+| step         | 0        |
+| vb           | 0.0276   |
+| vb_q0        | 0.142    |
+| vb_q1        | 0.00758  |
+| vb_q2        | 0.00931  |
+| vb_q3        | 0.0131   |
+---------------------------
+saving model 0...
+saving model 0.9999...
