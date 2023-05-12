@@ -2,7 +2,9 @@
 Modified TABS model to run with data augmentation and Whole Head (WH) dataset
 
 Adjusted code in:
+
 TABS_model/train.py
+
 TABS_model/test.py
 
 To train the model, adjust the directory in the train.py and run
@@ -28,9 +30,13 @@ around 30 seconds to perform image generation for one test image. Concluded
 addition of validation loss as too computationally expensive.
 
 Adjusted code in:
+
 DIFF_model/scripts/segmentation_train.py
+
 DIFF_model/scripts/segmentation_sample.py
+
 DIFF_model/guided_diffusion/script_util
+
 DIFF_model/guided_diffusion/isicloader.py
 
 Code for performance on test sample in guided_diffusion/test_data_evaluation
