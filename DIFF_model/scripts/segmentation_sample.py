@@ -49,8 +49,8 @@ def main():
     if args.data_name == 'ISIC':
         tran_list = [transforms.Resize((args.image_size,args.image_size)), transforms.ToTensor(),]
         transform_test = transforms.Compose(tran_list)
-
-        ds = ISICDataset(args, args.data_dir, transform_test, mode = 'Test')
+        #Modified here
+        ds = ISICDataset('dlbs','test')
         args.in_ch = 4
     elif args.data_name == 'BRATS':
         tran_list = [transforms.Resize((args.image_size,args.image_size)),]

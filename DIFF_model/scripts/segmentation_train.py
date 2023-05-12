@@ -33,6 +33,7 @@ def main():
         #ds = ISICDataset(args, args.data_dir, transform_train)
         ds = ISICDataset('dlbs', 'train')
         args.in_ch = 4
+        ds_v = ISICDataset('dlbs','valid')
     #elif args.data_name == 'BRATS':
     #    tran_list = [transforms.Resize((args.image_size,args.image_size)),]
     #    transform_train = transforms.Compose(tran_list)
@@ -44,7 +45,14 @@ def main():
         batch_size=args.batch_size,
         shuffle=True)
     data = iter(datal)
-
+    
+    dataV= th.utils.data.DataLoader(
+        ds,
+        batch_size=args.batch_size,
+        shuffle=True)
+    data_val = iter(dataV)
+    
+    
     logger.log("creating model and diffusion...")
 
     model, diffusion = create_model_and_diffusion(
